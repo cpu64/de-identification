@@ -1,3 +1,4 @@
+# app/routes/index.py
 from quart import Blueprint, render_template
 
 index_bp = Blueprint("index", __name__)

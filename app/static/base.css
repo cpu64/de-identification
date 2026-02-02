@@ -1,10 +1,122 @@
-body {
-    font-family: system-ui, sans-serif;
-    background: #f7f7f7;
-    margin: 0;
-    padding: 2rem;
+:root {
+    --primary-color: #1e145e;
+    --secondary-color: #160f46;
+    --accent-color: #007bff;
+    --font-primary-color: #ffffff;
+    --border-radius: 10px;
+    --input-bg: #2a1f8a;
+    --input-border: #3b2cb0;
+    --input-focus: #5a45ff;
+    --transition-speed: 0.3s;
 }
 
-h1 {
-    color: #333;
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    color: var(--font-primary-color);
+    background-color: var(--primary-color);
+    font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.flash {
+    padding: 10px 15px;
+    margin: 16px 0;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    font-size: 15px;
+    text-align: left;
+    max-width: 400px;
+}
+
+.flash.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.flash.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash.info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+.action-button {
+    padding: 11px 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--accent-color);
+    color: var(--font-primary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 16px;
+    font-family: inherit;
+    font-weight: 400;
+    transition: background-color var(--transition-speed) ease, transform 0.1s ease;
+    margin: 8px 0;
+}
+
+.action-button:hover {
+    background-color: #0056b3;
+}
+
+.action-button:active {
+    transform: scale(0.98);
+}
+
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    background-color: #555;
+}
+
+.text-input {
+    padding: 10px 12px;
+    border: 2px solid var(--input-border);
+    border-radius: var(--border-radius);
+    background-color: var(--input-bg);
+    color: var(--font-primary-color);
+    font-size: 15px;
+    width: 100%;
+    transition: all var(--transition-speed) ease;
+}
+
+.text-input::placeholder {
+    color: #bdbdbd;
+    font-style: italic;
+}
+
+.text-input:focus {
+    border-color: var(--input-focus);
+    outline: none;
+    background-color: #fffcc8;
+    color: #000;
+    box-shadow: 0 0 6px rgba(90, 69, 255, 0.4);
+}
+
+.spinner {
+    display: inline-block;
+    margin-left: 8px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

@@ -1,12 +1,227 @@
+<!-- app/templates/index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hello World</title>
+    <title>Text De-identification</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+    <style>
+            body {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+                align-items: center;
+            }
+
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1rem 2rem;
+                background: var(--secondary-color);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            nav a {
+                margin-left: 1.5rem;
+                margin-right: 1.5rem;
+                color: var(--font-primary-color);
+                font-weight: 500;
+                text-decoration: none;
+                transition: color var(--transition-speed);
+            }
+
+            nav a:hover {
+                color: var(--accent-color);
+            }
+
+            label {
+                margin-bottom: 0.5rem;
+                text-align: center;
+                width: 100%;
+            }
+
+            h2 {
+                text-align: center;
+                margin-bottom: 2rem;
+                color: var(--font-primary-color);
+            }
+
+            main {
+                flex: 1;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 2rem 1rem;
+                flex-direction: column;
+                width: 70%;
+                height: 100%;
+            }
+
+            form {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                flex: 1;
+            }
+
+            .card {
+                background-color: var(--secondary-color);
+                padding: 3rem;
+                border-radius: var(--border-radius);
+                box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+                width: 100%;
+                max-width: 25000px;
+                display: flex;
+                flex-direction: column;
+                height: 80vh;
+            }
+
+            .textarea-container {
+                display: flex;
+                gap: 1rem;
+                flex: 1;
+                align-items: stretch;
+                flex-direction: row;
+                height: 100%;
+                margin-bottom: 5px;
+            }
+
+            .textarea-container > div {
+                flex: 1 1 50%;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                height: 100%;
+            }
+
+            button.action-button {
+                width: 80%;
+                max-width: 300px;
+                margin: 0.5rem auto 0;
+                display: block;
+            }
+
+            textarea.text-input {
+                flex: 1;
+                min-height: 150px;
+                font-size: 16px;
+                padding: 12px;
+                resize: vertical;
+                width: 90%;
+                max-width: 100%;
+            }
+
+            .spinner {
+                display: inline-block;
+                margin-left: 8px;
+                animation: spin 1s linear infinite;
+            }
+
+            #status {
+                margin-top: 1rem;
+                text-align: center;
+                font-size: 0.95rem;
+                color: #ddd;
+            }
+
+            @media (max-width: 700px) {
+                .textarea-container {
+                flex-direction: column;
+                }
+            }
+
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
 </head>
 <body>
-    <h1>Hello, world 👋</h1>
-    <p>Your Quart app is running.</p>
+    <header>
+        <nav>
+            <a href="#">Apie</a>
+            <a href="#">Prisijungti</a>
+        </nav>
+    </header>
+    <main>
+        <div class="card">
+            <h2>Panaikinkite Asmens Duomenis Iš Teksto</h2>
+            <form id="sanitize-form">
+                <div class="textarea-container">
+                    <div>
+                        <label for="input-text">Tekstas valymui</label>
+                        <textarea id="input-text" class="text-input" placeholder="Įveskite tekstą čia..."></textarea>
+                        <button type="submit" class="action-button" id="sanitize-button">
+                        <span class="button-text">Valyti</span>
+                        <span class="spinner" style="display:none;">⏳</span>
+                        </button>
+                    </div>
+                    <div>
+                        <label for="output-text">Išvalytas Tekstas</label>
+                        <textarea id="output-text" class="text-input" readonly placeholder="Išvalytas tekstas bus čia..."></textarea>
+                        <button type="button" class="action-button" id="copy-button" disabled>Kopijuoti</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+    <script>
+        const form = document.getElementById("sanitize-form");
+        const inputBox = document.getElementById("input-text");
+        const outputBox = document.getElementById("output-text");
+        const sanitizeButton = document.getElementById("sanitize-button");
+        const buttonText = sanitizeButton.querySelector(".button-text");
+        const spinner = sanitizeButton.querySelector(".spinner");
+        const copyButton = document.getElementById("copy-button");
+
+        const updateCopyButton = () => copyButton.disabled = !outputBox.value;
+
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            outputBox.value = "";
+            updateCopyButton();
+
+            sanitizeButton.disabled = true;
+            buttonText.textContent = "Processing...";
+            spinner.style.display = "inline-block";
+
+            try {
+                const response = await fetch("/sanitize", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ text: inputBox.value })
+                });
+                const data = await response.json();
+                outputBox.value = data.sanitized;
+
+                updateCopyButton();
+                spinner.style.display = "none";
+                sanitizeButton.disabled = false;
+                buttonText.textContent = "Done!";
+            } catch (err) {
+                spinner.style.display = "none";
+                buttonText.textContent = "Error!";
+                sanitizeButton.disabled = false;
+            }
+        });
+
+        inputBox.addEventListener("input", () => buttonText.textContent = "Sanitize");
+        outputBox.addEventListener("input", updateCopyButton);
+
+        copyButton.addEventListener("click", () => {
+            if (!outputBox.value) return;
+            navigator.clipboard.writeText(outputBox.value)
+                .then(() => {
+                    copyButton.textContent = "Copied!";
+                    setTimeout(() => copyButton.textContent = "Copy", 1500);
+                })
+                .catch(() => copyButton.textContent = "Error");
+        });
+    </script>
 </body>
 </html>

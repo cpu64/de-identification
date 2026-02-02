@@ -1,3 +1,4 @@
+# app/main.py
 from quart import Quart
 
 def create_app(*args, **kwargs):
@@ -5,6 +6,9 @@ def create_app(*args, **kwargs):
 
     from app.routes.index import index_bp
     app.register_blueprint(index_bp)
+
+    from app.routes.sanitize import sanitize_bp
+    app.register_blueprint(sanitize_bp)
 
     return app
 
